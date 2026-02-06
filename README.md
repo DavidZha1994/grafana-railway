@@ -1,37 +1,23 @@
 # Grafana on Railway
 
-Deploy Grafana OSS to Railway with one click. Metadata persisted in PostgreSQL — dashboards, data sources, and alerts survive every redeploy.
+Deploy Grafana OSS to Railway with one click. PostgreSQL auto-provisioned — dashboards, data sources, and alerts persist across every redeploy.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/DavidZha1994/railwayapp-grafana)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/TEMPLATE_ID)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/yzha)
 
 ## Features
 
 - **Grafana Latest** - Always deploys the latest stable version
-- **PostgreSQL Persistence** - Dashboards & config survive redeploys
-- **Railway Optimized** - Auto-binds PORT and DATABASE_URL
-- **Health Check** - Built-in container health monitoring
+- **PostgreSQL Auto-Provisioned** - Database created automatically on deploy
+- **Zero Config** - DATABASE_URL wired automatically between services
+- **Health Check** - Built-in container and Railway health monitoring
 
-## Deploy Steps
+## Deploy
 
-### Step 1: Deploy Grafana
+Click the **Deploy on Railway** button above. Both Grafana and PostgreSQL will be created automatically.
 
-Click the **Deploy on Railway** button above
-
-### Step 2: Add PostgreSQL
-
-1. In your Railway project, click **+ New**
-2. Select **Database** → **Add PostgreSQL**
-
-### Step 3: Connect Database
-
-1. Click on your **Grafana** service
-2. Go to **Variables** tab
-3. Add: `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
-4. Redeploy the service
-
-### Step 4: Access Grafana
+Once deployed:
 
 1. Wait 1-2 minutes for initialization
 2. Open your Grafana service URL
@@ -49,7 +35,7 @@ Click the **Deploy on Railway** button above
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | Required | `${{Postgres.DATABASE_URL}}` |
+| `DATABASE_URL` | Auto-wired | `${{Postgres.DATABASE_URL}}` |
 | `PORT` | `3000` | Server port (auto-set by Railway) |
 | `GF_SECURITY_ADMIN_USER` | `admin` | Admin username |
 | `GF_SECURITY_ADMIN_PASSWORD` | `admin` | Admin password |
@@ -58,10 +44,10 @@ Click the **Deploy on Railway** button above
 
 ## Installing Plugins
 
-Set the `GF_INSTALL_PLUGINS` environment variable:
+Set the `GF_INSTALL_PLUGINS` environment variable in Railway:
 
 ```
-GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+grafana-clock-panel,grafana-simple-json-datasource
 ```
 
 See [Grafana Plugin Directory](https://grafana.com/grafana/plugins/) for available plugins.
