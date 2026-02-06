@@ -1,6 +1,6 @@
 # Grafana on Railway
 
-Deploy Grafana OSS to Railway with one click.
+Deploy Grafana OSS to Railway with one click. Metadata persisted in PostgreSQL — dashboards, data sources, and alerts survive every redeploy.
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/DavidZha1994/railwayapp-grafana)
 
@@ -9,9 +9,9 @@ Deploy Grafana OSS to Railway with one click.
 ## Features
 
 - **Grafana Latest** - Always deploys the latest stable version
-- **Zero Config** - Works out of the box with sensible defaults
-- **Railway Optimized** - Auto-binds to Railway's `PORT` variable
-- **Health Check** - Built-in health monitoring
+- **PostgreSQL Persistence** - Dashboards & config survive redeploys
+- **Railway Optimized** - Auto-binds PORT and DATABASE_URL
+- **Health Check** - Built-in container health monitoring
 
 ## Deploy Steps
 
@@ -19,9 +19,21 @@ Deploy Grafana OSS to Railway with one click.
 
 Click the **Deploy on Railway** button above
 
-### Step 2: Access Grafana
+### Step 2: Add PostgreSQL
 
-1. Wait 1-2 minutes for the container to start
+1. In your Railway project, click **+ New**
+2. Select **Database** → **Add PostgreSQL**
+
+### Step 3: Connect Database
+
+1. Click on your **Grafana** service
+2. Go to **Variables** tab
+3. Add: `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+4. Redeploy the service
+
+### Step 4: Access Grafana
+
+1. Wait 1-2 minutes for initialization
 2. Open your Grafana service URL
 3. Login with `admin` / `admin`
 
@@ -37,6 +49,7 @@ Click the **Deploy on Railway** button above
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `DATABASE_URL` | Required | `${{Postgres.DATABASE_URL}}` |
 | `PORT` | `3000` | Server port (auto-set by Railway) |
 | `GF_SECURITY_ADMIN_USER` | `admin` | Admin username |
 | `GF_SECURITY_ADMIN_PASSWORD` | `admin` | Admin password |
@@ -56,10 +69,13 @@ See [Grafana Plugin Directory](https://grafana.com/grafana/plugins/) for availab
 ## Local Development
 
 ```bash
+cp .env.example .env
 docker compose up -d
 ```
 
 Open http://localhost:3000 and login with `admin` / `admin`.
+
+PostgreSQL data persists in a Docker named volume across restarts.
 
 ## Resources
 

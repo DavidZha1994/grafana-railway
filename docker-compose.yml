@@ -3,16 +3,38 @@ services:
     build: .
     container_name: grafana
     restart: unless-stopped
-    env_file: .env
     ports:
       - "3000:3000"
-    volumes:
-      - grafana-data:/var/lib/grafana
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://grafana:grafana@postgres:5432/grafana
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DEFAULT_INSTANCE_NAME=my-instance
+      - GF_LOG_MODE=console
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=grafana
+      - POSTGRES_PASSWORD=grafana
+      - POSTGRES_DB=grafana
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grafana"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
-  grafana-data:
+  postgres-data:
