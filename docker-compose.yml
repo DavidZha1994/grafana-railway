@@ -1,0 +1,18 @@
+services:
+  grafana:
+    build: .
+    container_name: grafana
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  grafana-data:

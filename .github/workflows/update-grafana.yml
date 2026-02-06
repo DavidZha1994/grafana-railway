@@ -1,0 +1,53 @@
+name: Check Grafana Update
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest Grafana version
+        id: latest
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/grafana/grafana/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+          echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+
+      - name: Check current version
+        id: current
+        run: |
+          if [ -f .grafana-version ]; then
+            CURRENT=$(cat .grafana-version)
+          else
+            CURRENT="unknown"
+          fi
+          echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
+
+      - name: Update version file
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        run: echo "${{ steps.latest.outputs.version }}" > .grafana-version
+
+      - name: Create Pull Request
+        if: steps.latest.outputs.version != steps.current.outputs.version
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: track Grafana ${{ steps.latest.outputs.version }}"
+          title: "chore: Grafana ${{ steps.latest.outputs.version }} available"
+          body: |
+            Grafana **${{ steps.latest.outputs.version }}** is now available.
+
+            Since this template uses `grafana/grafana-oss:latest`, the next Railway deployment will automatically pull the new version.
+
+            This PR updates the version tracking file for reference.
+
+            [Release Notes](https://github.com/grafana/grafana/releases/tag/v${{ steps.latest.outputs.version }})
+          branch: chore/grafana-update
+          delete-branch: true
